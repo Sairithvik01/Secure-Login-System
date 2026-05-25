@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// =============================================================
+// Firestore Security Rules for SecureAuth
+// =============================================================
+// IMPORTANT: Deploy these rules in Firebase Console →
+//   Firestore Database → Rules → Paste & Publish
+// =============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── User Profiles ───────────────────────────────────
+    // Users can only read and update their own profile.
+    // Users cannot delete their profile document.
+    match /users/{userId} {
+
+      // Allow read only if the requesting user matches the document owner
+      allow read: if request.auth != null && request.auth.uid == userId;
+
+      // Allow create only if the requesting user matches the document owner
+      // and the required fields are present
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    && request.resource.data.keys().hasAll(['displayName', 'email', 'createdAt']);
+
+      // Allow update only if the requesting user matches the document owner
+      // and they're not changing protected fields (email, createdAt)
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    && (!request.resource.data.diff(resource.data).affectedKeys()
+                        .hasAny(['createdAt']));
+
+      // Deny delete — users cannot delete their own profile
+      allow delete: if false;
+
+      // ─── Login History (subcollection) ───────────────
+      // Users can read their own login history.
+      // Login history entries can be created but never modified or deleted.
+      match /loginHistory/{entryId} {
+
+        // Allow read only by the document owner
+        allow read: if request.auth != null && request.auth.uid == userId;
+
+        // Allow create (append-only) — entries cannot be edited or deleted
+        allow create: if request.auth != null
+                      && request.auth.uid == userId
+                      && request.resource.data.keys().hasAll(['action', 'timestamp']);
+
+        // Deny update and delete — login history is immutable
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // ─── Default: Deny All Other Access ──────────────────
+    // Any collection not explicitly matched above is denied
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

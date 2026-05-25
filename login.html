@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sign in to your SecureAuth account with encrypted authentication and session management.">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <title>Sign In — SecureAuth</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>">
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-animation">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+  </div>
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Back Link -->
+  <a href="index.html" class="back-link" id="back-to-home">
+    <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to Home
+  </a>
+
+  <!-- Auth Page -->
+  <div class="auth-page">
+    <div class="auth-card" id="login-card">
+
+      <!-- Header -->
+      <div class="auth-header">
+        <div class="auth-logo">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h1>Welcome Back</h1>
+        <p>Sign in to your secure account</p>
+      </div>
+
+      <!-- Login Form -->
+      <form class="auth-form" id="login-form" novalidate>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input
+              type="email"
+              id="login-email"
+              class="form-input"
+              data-validate="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required
+            >
+          </div>
+          <div class="form-error" id="login-email-error">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </span>
+            <input
+              type="password"
+              id="login-password"
+              class="form-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+              <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <div class="form-error" id="login-password-error">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>Password is required</span>
+          </div>
+        </div>
+
+        <!-- Remember Me + Forgot Password -->
+        <div class="form-row">
+          <label class="checkbox-group">
+            <input type="checkbox" id="remember-me" class="checkbox-input">
+            <span class="checkbox-custom">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+            <span class="checkbox-label">Remember me</span>
+          </label>
+          <a href="forgot-password.html" class="forgot-link" id="forgot-password-link">Forgot password?</a>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="login-submit-btn">
+          <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+          Sign In
+        </button>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="auth-footer">
+        <p>Don't have an account? <a href="register.html" id="go-to-register">Create one</a></p>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="two-factor-login-modal" class="modal" style="display: none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content info-modal-content">
+      <div class="modal-header">
+        <h3>Two-Factor Verification</h3>
+        <button class="btn btn-ghost btn-sm" id="close-two-factor-login-modal" aria-label="Close">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="info-modal-body two-factor-modal-body">
+        <p id="two-factor-login-message">Enter the 6-digit code from your authenticator app to finish signing in.</p>
+        <form id="two-factor-login-form" class="auth-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="two-factor-login-code">6-digit code</label>
+            <input type="text" id="two-factor-login-code" class="form-input" placeholder="123456" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+            <div class="form-error" id="two-factor-login-error">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Please enter a valid 6-digit code</span>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="cancel-two-factor-login">Use another account</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="verify-two-factor-login">Verify Code</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Signing you in...</p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
+  <!-- App Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/validation.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+
+  <script>
+    // Initialize UI
+    UI.init({
+      particles: true,
+      formValidation: '#login-form'
+    });
+
+    const twoFactorLoginModal = document.getElementById('two-factor-login-modal');
+    const twoFactorLoginMessage = document.getElementById('two-factor-login-message');
+    const twoFactorLoginCode = document.getElementById('two-factor-login-code');
+    const twoFactorLoginError = document.getElementById('two-factor-login-error');
+    const twoFactorLoginForm = document.getElementById('two-factor-login-form');
+    const verifyTwoFactorLoginBtn = document.getElementById('verify-two-factor-login');
+    const loginSubmitBtn = document.getElementById('login-submit-btn');
+    let activeTwoFactorUser = null;
+
+    const openTwoFactorLoginModal = (message) => {
+      if (twoFactorLoginMessage) {
+        twoFactorLoginMessage.textContent = message || 'Enter the 6-digit code from your authenticator app to finish signing in.';
+      }
+      if (twoFactorLoginCode) {
+        twoFactorLoginCode.value = '';
+      }
+      if (twoFactorLoginError) {
+        twoFactorLoginError.classList.remove('visible');
+      }
+      if (twoFactorLoginModal) {
+        twoFactorLoginModal.style.display = 'flex';
+      }
+      setTimeout(() => twoFactorLoginCode?.focus(), 0);
+    };
+
+    const closeTwoFactorLoginModal = async (signOutCurrentUser = false) => {
+      if (twoFactorLoginModal) {
+        twoFactorLoginModal.style.display = 'none';
+      }
+      if (signOutCurrentUser && auth.currentUser) {
+        await Auth.logout();
+      }
+      activeTwoFactorUser = null;
+    };
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const profile = await Auth.getUserProfile();
+      if (profile?.twoFactorEnabled && !Auth.isTwoFactorVerified(user.uid)) {
+        activeTwoFactorUser = user;
+        openTwoFactorLoginModal('Enter the 6-digit code from your authenticator app to finish signing in.');
+        return;
+      }
+
+      window.location.href = 'dashboard.html';
+    });
+
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const rememberMe = document.getElementById('remember-me').checked;
+      const submitBtn = document.getElementById('login-submit-btn');
+
+      // Basic field validation
+      if (!email) {
+        UI.setFieldState(document.getElementById('login-email'), 'invalid', 'Email is required');
+        return;
+      }
+      if (!password) {
+        UI.setFieldState(document.getElementById('login-password'), 'invalid', 'Password is required');
+        return;
+      }
+
+      // Email format check
+      if (!Validator.isValidEmail(email)) {
+        UI.setFieldState(document.getElementById('login-email'), 'invalid', 'Please enter a valid email');
+        return;
+      }
+
+      try {
+        UI.setButtonLoading(submitBtn, true);
+
+        const result = await Auth.login(email, password, rememberMe);
+
+        if (result.twoFactorRequired) {
+          UI.setButtonLoading(submitBtn, false);
+          activeTwoFactorUser = result.user;
+          openTwoFactorLoginModal(result.message);
+          return;
+        }
+
+        UI.success('Welcome back!', result.message);
+
+        // Brief delay so user sees the success toast
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 800);
+
+      } catch (error) {
+        UI.setButtonLoading(submitBtn, false);
+        UI.error('Login Failed', error.message);
+
+        // Shake the card for visual feedback
+        const card = document.getElementById('login-card');
+        card.classList.add('animate-shake');
+        setTimeout(() => card.classList.remove('animate-shake'), 500);
+      }
+    });
+
+    twoFactorLoginForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = twoFactorLoginCode.value.trim();
+
+      if (!/^\d{6}$/.test(code)) {
+        twoFactorLoginError?.classList.add('visible');
+        return;
+      }
+
+      try {
+        UI.setButtonLoading(verifyTwoFactorLoginBtn, true);
+        await Auth.completeTwoFactorLogin(code);
+        UI.hideLoading();
+        UI.success('Verified', 'Two-factor authentication successful.');
+        window.location.href = 'dashboard.html';
+      } catch (error) {
+        UI.setButtonLoading(verifyTwoFactorLoginBtn, false);
+        twoFactorLoginError?.classList.add('visible');
+        UI.error('Verification Failed', error.message);
+      }
+    });
+
+    document.getElementById('cancel-two-factor-login')?.addEventListener('click', async () => {
+      await closeTwoFactorLoginModal(true);
+      window.location.reload();
+    });
+
+    document.getElementById('close-two-factor-login-modal')?.addEventListener('click', async () => {
+      await closeTwoFactorLoginModal(true);
+      window.location.reload();
+    });
+
+    twoFactorLoginModal?.addEventListener('click', async (e) => {
+      if (e.target === twoFactorLoginModal || e.target.classList.contains('modal-backdrop')) {
+        await closeTwoFactorLoginModal(true);
+        window.location.reload();
+      }
+    });
+  </script>
+</body>
+</html>
