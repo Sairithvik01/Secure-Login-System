@@ -6,6 +6,9 @@ node_modules/
 .env.local
 .env.*.local
 
+# Generated Firebase env config (contains secrets — never commit this file!)
+js/env-config.js
+
 # IDE
 .vscode/
 .idea/
